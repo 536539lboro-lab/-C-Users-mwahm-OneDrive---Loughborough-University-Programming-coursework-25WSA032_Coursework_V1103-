@@ -4,6 +4,9 @@
 const int PIN_TEMP_SENSOR = A0;
 const int B_VALUE = 4275;
 const int R0 = 100000;
+const float SAMPLE_RATE_MIN = 0.033;
+const float SAMPLE_RATE_MED = 0.2;
+const float SAMPLE_RATE_MAX = 1.0;
 
 #define NUM_SAMPLES 60
 
@@ -78,6 +81,19 @@ int decide_power_mode(float dominantFreqHz) {
     }
     return newMode;
 }
+void adjust_sampling_rate(float dominantFreqHz) {
+    float nyquist = 2.0 * dominantFreqHz;
+    if (currentMode == ACTIVE) {
+        currentRate = nyquist;
+        if (currentRate < SAMPLE_RATE_MAX) currentRate = SAMPLE_RATE_MAX;
+        if (currentRate > 4.0) currentRate = 4.0;
+    } else if (currentMode == IDLE_MODE) {
+        currentRate = SAMPLE_RATE_MED;
+        if (nyquist > currentRate) currentRate = SAMPLE_RATE_MED;
+    } else {
+        currentRate = SAMPLE_RATE_MIN;
+    }
+}
 
 void setup() {
     Serial.begin(9600);
@@ -106,6 +122,7 @@ void loop() {
     }
 
     currentMode = decide_power_mode(dominantFreq);
+    adjust_sampling_rate(dominantFreq);
 
     Serial.print("Mode: ");
     if      (currentMode == ACTIVE)    Serial.println("ACTIVE");
