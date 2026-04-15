@@ -81,6 +81,27 @@ int decide_power_mode(float dominantFreqHz) {
     }
     return newMode;
 }
+// sends time and frequency domain data to serial monitor
+// format: Time(s), Temperature(C), Frequency(Hz), Magnitude
+void send_data_to_pc(float freqArray[], float sampleRateHz, int n) {
+    int halfN = n / 2;
+    float intervalSecs = 1.0 / sampleRateHz;
+    for (int k = 0; k < halfN; k++) {
+        float timeStamp = (float)k * intervalSecs;
+        float tempVal = (k < NUM_SAMPLES) ? tempSamples[k] : 0.0;
+        float real_k = 0.0, imag_k = 0.0;
+        for (int i = 0; i < n; i++) {
+            float angle = (2.0 * M_PI * k * i) / (float)n;
+            real_k +=  tempSamples[i] * cos(angle);
+            imag_k += -tempSamples[i] * sin(angle);
+        }
+        float magnitude = sqrt(real_k * real_k + imag_k * imag_k);
+        Serial.print(timeStamp);     Serial.print(", ");
+        Serial.print(tempVal);       Serial.print(", ");
+        Serial.print(freqArray[k]);  Serial.print(", ");
+        Serial.println(magnitude);
+    }
+}
 void adjust_sampling_rate(float dominantFreqHz) {
     float nyquist = 2.0 * dominantFreqHz;
     if (currentMode == ACTIVE) {
@@ -124,6 +145,7 @@ void loop() {
     currentMode = decide_power_mode(dominantFreq);
     adjust_sampling_rate(dominantFreq);
 
+    send_data_to_pc(freqArray, currentRate, NUM_SAMPLES);
     Serial.print("Mode: ");
     if      (currentMode == ACTIVE)    Serial.println("ACTIVE");
     else if (currentMode == IDLE_MODE) Serial.println("IDLE");
