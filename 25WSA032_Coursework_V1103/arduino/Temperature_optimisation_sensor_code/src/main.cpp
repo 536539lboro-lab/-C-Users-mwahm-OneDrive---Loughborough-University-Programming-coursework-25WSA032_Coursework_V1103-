@@ -18,6 +18,10 @@ const int   IDLE_LIMIT = 5;
 #define IDLE_MODE  1
 #define POWER_DOWN 2
 
+#define MA_WINDOW 10
+float maBuffer[MA_WINDOW];
+int   maIndex = 0;
+
 float tempSamples[NUM_SAMPLES];
 float currentRate  = 1.0;
 int   currentMode  = ACTIVE;
@@ -44,6 +48,13 @@ void collect_temperature_data(float sampleRateHz) {
         tempSamples[i] = t;
         delay(intervalMs);
     }
+    float totalVariation = 0.0;
+    for (int i = 1; i < NUM_SAMPLES; i++) {
+        totalVariation += fabs(tempSamples[i] - tempSamples[i - 1]);
+    }
+    maBuffer[maIndex] = totalVariation;
+    maIndex++;
+    if (maIndex >= MA_WINDOW) maIndex = 0;
 }
 
 void apply_dft(float freqArray[], int n, float sampleRateHz) {
@@ -121,6 +132,15 @@ void setup() {
     Serial.println("=== Temperature Monitor ===");
 }
 
+// predicts future variation by averaging last MA_WINDOW cycles
+float moving_average_prediction() {
+    float sum = 0.0;
+    for (int i = 0; i < MA_WINDOW; i++) {
+        sum += maBuffer[i];
+    }
+    return sum / (float)MA_WINDOW;
+}
+
 void loop() {
     collect_temperature_data(currentRate);
 
@@ -146,6 +166,12 @@ void loop() {
     adjust_sampling_rate(dominantFreq);
 
     send_data_to_pc(freqArray, currentRate, NUM_SAMPLES);
+    
+    float predictedVariation = moving_average_prediction();
+    Serial.print("Predicted variation: ");
+    Serial.print(predictedVariation);
+    Serial.println(" C");
+
     Serial.print("Mode: ");
     if      (currentMode == ACTIVE)    Serial.println("ACTIVE");
     else if (currentMode == IDLE_MODE) Serial.println("IDLE");
