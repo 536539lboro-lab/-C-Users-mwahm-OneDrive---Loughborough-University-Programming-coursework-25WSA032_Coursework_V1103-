@@ -10,8 +10,8 @@ const float SAMPLE_RATE_MAX = 1.0;
 
 #define NUM_SAMPLES 60
 
-const float FREQ_HIGH  = 0.5;
-const float FREQ_MED   = 0.1;
+const float FREQ_HIGH  = 0.5;   // active mode threshold - rapid changes
+const float FREQ_MED   = 0.05;  // lowered based on observed sensor data (~0.02 Hz typical)
 const int   IDLE_LIMIT = 5;
 
 #define ACTIVE     0
