@@ -142,13 +142,15 @@ float moving_average_prediction() {
 }
 
 void loop() {
+    // step 1: collect temperature data for this cycle
     collect_temperature_data(currentRate);
 
+    // step 2: run DFT to get frequency components
     int halfN = NUM_SAMPLES / 2;
     float freqArray[halfN];
     apply_dft(freqArray, NUM_SAMPLES, currentRate);
 
-    // find dominant frequency - skip k=0 (that's just the DC average)
+    // step 3: find dominant frequency - skip k=0 (DC average, not useful)
     float dominantFreq = 0.0;
     float maxMag = 0.0;
     for (int k = 1; k < halfN; k++) {
@@ -162,18 +164,30 @@ void loop() {
         if (mag > maxMag) { maxMag = mag; dominantFreq = freqArray[k]; }
     }
 
+    // step 4: predict future variation using moving average
+    float predictedVariation = moving_average_prediction();
+
+    // step 5: decide power mode based on dominant frequency
     currentMode = decide_power_mode(dominantFreq);
+
+    // step 6: adjust sampling rate to satisfy Nyquist
     adjust_sampling_rate(dominantFreq);
 
+    // step 7: send data to PC
     send_data_to_pc(freqArray, currentRate, NUM_SAMPLES);
-    
-    float predictedVariation = moving_average_prediction();
+
+    Serial.print("Dominant frequency: ");
+    Serial.print(dominantFreq);
+    Serial.println(" Hz");
     Serial.print("Predicted variation: ");
     Serial.print(predictedVariation);
     Serial.println(" C");
-
     Serial.print("Mode: ");
     if      (currentMode == ACTIVE)    Serial.println("ACTIVE");
     else if (currentMode == IDLE_MODE) Serial.println("IDLE");
     else                               Serial.println("POWER_DOWN");
+    Serial.print("Sampling rate: ");
+    Serial.print(currentRate);
+    Serial.println(" Hz");
+    Serial.println("---");
 }
