@@ -1,3 +1,12 @@
+// Memory note:
+//   I'm storing 60 temperature readings in an array which
+//   takes up a decent chunk of the Arduino's RAM. If memory
+//   was becoming an issue I could reduce the number of samples
+//   or process them as they come in rather than storing them
+//   all first.
+
+
+
 #include <Arduino.h>
 #include <math.h>
 
