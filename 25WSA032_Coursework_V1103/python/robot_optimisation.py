@@ -43,12 +43,19 @@ while es.active:
                     nearest_charger = charger
             bot.charge(nearest_charger)
 
-        # if idle, find a pizza to deliver
+        # if idle, find the nearest ready pizza instead of just the first one
         if bot.activity == 'idle':
+            nearest_pizza = None
+            nearest_dist = float('inf')
             for pizza in es.deliverables():
                 if pizza.status == 'ready':
-                    bot.deliver(pizza)
-                    break
+                    d = ((bot.coordinates[0] - pizza.coordinates[0])**2 +
+                         (bot.coordinates[1] - pizza.coordinates[1])**2) **0.5
+                    if d < nearest_dist:
+                        nearest_dist = d
+                        nearest_pizza = pizza
+            if nearest_pizza:
+                bot.deliver(nearest_pizza)
 
         # go home if nothing to do
         if not bot.destination and bot.coordinates != home:
