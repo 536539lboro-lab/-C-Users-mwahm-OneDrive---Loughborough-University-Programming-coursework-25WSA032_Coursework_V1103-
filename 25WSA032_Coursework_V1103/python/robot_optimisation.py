@@ -23,9 +23,17 @@ while es.active:
     for bot in es.bots():
 
         # go charge if battery is low
+        # pick the nearest charger instead of always using the first one
         if bot.soc / bot.max_soc < charge_threshold and bot.station is None:
-            charger = es.chargers()[0]
-            bot.charge(charger)
+            nearest_charger = None
+            nearest_dist = float('inf')
+            for charger in es.chargers():
+                d = ((bot.coordinates[0] - charger.coordinates[0])**2 +
+                     (bot.coordinates[1] - charger.coordinates[1])**2) **0.5
+                if d < nearest_dist:
+                    nearest_dist = d
+                    nearest_charger = charger
+            bot.charge(nearest_charger)
 
         # if idle, find a pizza to deliver
         if bot.activity == 'idle':
