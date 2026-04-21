@@ -12,6 +12,19 @@ es.debug = False
 es.messages_on = False
 es.duration = "1 week"
 
+# KPI tracking - store starting values so we can compare at the end
+kpi_start_distance = {}
+kpi_start_delivered = {}
+kpi_start_energy = {}
+
+for bot in es.bots():
+    kpi_start_distance[bot.name] = bot.distance
+    kpi_start_delivered[bot.name] = bot.units_delivered
+    kpi_start_energy[bot.name] = bot.energy
+
+# home position where bots return when idle
+home = [40, 20, 0]
+
 # home position where bots return when idle
 home = [40, 20, 0]
 
@@ -27,6 +40,16 @@ def get_charge_threshold(bot):
         return 0.15   # drone is fast so can leave it later
 
 while es.active:
+
+    # store final KPI values after the run
+    kpi_end_distance = {}
+    kpi_end_delivered = {}
+    kpi_end_energy = {}
+
+    for bot in es.bots():
+        kpi_end_distance[bot.name] = bot.distance
+        kpi_end_delivered[bot.name] = bot.units_delivered
+        kpi_end_energy[bot.name] = bot.energy
 
     for bot in es.bots():
 
