@@ -15,8 +15,16 @@ es.duration = "1 week"
 # home position where bots return when idle
 home = [40, 20, 0]
 
-# basic charge threshold - will improve this later
-charge_threshold = 0.20
+# different charge thresholds for each bot type
+# robots are slower so they need to leave for charging earlier
+# drones are faster so they can wait longer before charging
+def get_charge_threshold(bot):
+    if bot.kind == 'Robot':
+        return 0.30   # slow bot, needs more buffer to reach charger
+    elif bot.kind == 'Droid':
+        return 0.25   # medium speed
+    else:
+        return 0.15   # drone is fast so can leave it later
 
 while es.active:
 
@@ -24,7 +32,7 @@ while es.active:
 
         # go charge if battery is low
         # pick the nearest charger instead of always using the first one
-        if bot.soc / bot.max_soc < charge_threshold and bot.station is None:
+        if bot.soc / bot.max_soc < get_charge_threshold(bot) and bot.station is None:
             nearest_charger = None
             nearest_dist = float('inf')
             for charger in es.chargers():
