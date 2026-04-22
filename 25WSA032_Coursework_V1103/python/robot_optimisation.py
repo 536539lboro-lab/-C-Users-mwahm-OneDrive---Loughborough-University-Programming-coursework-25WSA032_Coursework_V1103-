@@ -7,23 +7,10 @@ plt.ion()
 # create the ecosystem with 3 of each bot type and 2 chargers
 es = ecofactory(robots=3, droids=3, drones=3, chargers=([20, 20], [60, 20]), pizzas=9)
 
-es.display(show=1, pause=10)
+es.display(show=0, pause=10)
 es.debug = False
 es.messages_on = False
 es.duration = "1 week"
-
-# KPI tracking - store starting values so we can compare at the end
-kpi_start_distance = {}
-kpi_start_delivered = {}
-kpi_start_energy = {}
-
-for bot in es.bots():
-    kpi_start_distance[bot.name] = bot.distance
-    kpi_start_delivered[bot.name] = bot.units_delivered
-    kpi_start_energy[bot.name] = bot.energy
-
-# home position where bots return when idle
-home = [40, 20, 0]
 
 # home position where bots return when idle
 home = [40, 20, 0]
@@ -40,16 +27,6 @@ def get_charge_threshold(bot):
         return 0.15   # drone is fast so can leave it later
 
 while es.active:
-
-    # store final KPI values after the run
-    kpi_end_distance = {}
-    kpi_end_delivered = {}
-    kpi_end_energy = {}
-
-    for bot in es.bots():
-        kpi_end_distance[bot.name] = bot.distance
-        kpi_end_delivered[bot.name] = bot.units_delivered
-        kpi_end_energy[bot.name] = bot.energy
 
     for bot in es.bots():
 
@@ -89,23 +66,32 @@ while es.active:
 
     es.update()
 
-# print KPI results in a readable format
-print("\n===== KPI RESULTS =====")
-print(f"{'Bot':<10} {'Deliveries':>12} {'Distance':>12} {'Energy':>12}")
-print("-" * 48)
+# print final KPI table using the ecosystem's built in tabulate method
+# learned about this from the week 8 performance analysis guide
+print("\n===== FINAL BOT PERFORMANCE =====")
+es.tabulate('name', 'kind', 'status', 'units_delivered',
+            'weight_delivered', 'distance', 'energy', 'damage',
+            kind_class='Bot')
 
-for bot in es.bots():
-    deliveries = kpi_end_delivered[bot.name] - kpi_start_delivered[bot.name]
-    dist       = kpi_end_distance[bot.name] - kpi_start_distance[bot.name]
-    energy     = kpi_end_energy[bot.name] - kpi_start_energy[bot.name]
-    print(f"{bot.name:<10} {deliveries:>12} {round(dist,2):>12} {round(energy,2):>12}")
+# flag any broken bots
+print("\n===== BROKEN BOTS =====")
+broken = list(es.registry(kind_class='Bot', status='broken').values())
+if broken:
+    for r in broken:
+        print(f"{r['name']} ({r['kind']}) broke after {r['age']} hours - damage points: {r['damage']}")
+else:
+    print("No broken bots - all survived the run")
 
-print("-" * 48)
+# simple bar chart of pizzas delivered per bot
+bot_registers   = list(es.registry(kind_class='Bot').values())
+names           = [r['name'] for r in bot_registers]
+units_delivered = [r['units_delivered'] for r in bot_registers]
 
-# total across all bots
-total_deliveries = sum(kpi_end_delivered[b.name] - kpi_start_delivered[b.name] for b in es.bots())
-total_distance   = sum(kpi_end_distance[b.name] - kpi_start_distance[b.name] for b in es.bots())
-total_energy     = sum(kpi_end_energy[b.name] - kpi_start_energy[b.name] for b in es.bots())
-
-print(f"{'TOTAL':<10} {total_deliveries:>12} {round(total_distance,2):>12} {round(total_energy,2):>12}")
-print("=======================\n")
+plt.figure()
+plt.bar(names, units_delivered, color='steelblue')
+plt.xlabel('Bot')
+plt.ylabel('Pizzas delivered')
+plt.title('Pizzas delivered per bot')
+plt.tight_layout()
+plt.savefig('python/kpi_deliveries.png')
+plt.show(block=True)
