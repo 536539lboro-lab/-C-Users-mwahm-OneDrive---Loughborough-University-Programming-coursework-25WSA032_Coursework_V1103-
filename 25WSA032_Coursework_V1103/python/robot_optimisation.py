@@ -88,3 +88,24 @@ while es.active:
             bot.move()
 
     es.update()
+
+# print KPI results in a readable format
+print("\n===== KPI RESULTS =====")
+print(f"{'Bot':<10} {'Deliveries':>12} {'Distance':>12} {'Energy':>12}")
+print("-" * 48)
+
+for bot in es.bots():
+    deliveries = kpi_end_delivered[bot.name] - kpi_start_delivered[bot.name]
+    dist       = kpi_end_distance[bot.name] - kpi_start_distance[bot.name]
+    energy     = kpi_end_energy[bot.name] - kpi_start_energy[bot.name]
+    print(f"{bot.name:<10} {deliveries:>12} {round(dist,2):>12} {round(energy,2):>12}")
+
+print("-" * 48)
+
+# total across all bots
+total_deliveries = sum(kpi_end_delivered[b.name] - kpi_start_delivered[b.name] for b in es.bots())
+total_distance   = sum(kpi_end_distance[b.name] - kpi_start_distance[b.name] for b in es.bots())
+total_energy     = sum(kpi_end_energy[b.name] - kpi_start_energy[b.name] for b in es.bots())
+
+print(f"{'TOTAL':<10} {total_deliveries:>12} {round(total_distance,2):>12} {round(total_energy,2):>12}")
+print("=======================\n")
