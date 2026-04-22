@@ -48,6 +48,13 @@ def get_nearest_pizza(bot, deliverables):
                 nearest = pizza
     return nearest
 
+# Optimisation notes:
+# 1. Nearest charger - reduces travel time to charge, gets bots
+#    back to deliveries faster. More important for slower bots.
+# 2. Per-bot charge threshold - robots need a higher threshold
+#    because they're slow and might not make it on 20%.
+# 3. Nearest pizza - reduces empty travel distance, means bots
+#    spend more time delivering and less time collecting.
 
 # ================================================================
 # RUN 1 - BASELINE (no optimisation, same as original demo)
