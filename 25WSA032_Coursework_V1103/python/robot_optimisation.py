@@ -1,3 +1,15 @@
+"""
+This file improves on the basic ecosystem_operation.py by implementing
+three optimisations:
+  1. Nearest charger selection instead of always using the first one
+  2. Per-bot charge thresholds based on each bot type's speed
+  3. Nearest pizza allocation instead of first available
+
+Performance is measured by comparing a baseline run (no optimisation)
+against the optimised run using KPI metrics from the ecosystem registry.
+"""
+
+
 from robots.ecosystem.factory import ecofactory
 import matplotlib.pyplot as plt
 
