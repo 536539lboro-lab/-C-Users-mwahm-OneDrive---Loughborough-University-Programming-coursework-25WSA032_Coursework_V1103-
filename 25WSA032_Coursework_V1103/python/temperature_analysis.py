@@ -32,4 +32,16 @@ plt.title('Temperature vs Time')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig('python/plot1_temperature_vs_time.png')
+
+# plot 2 - magnitude vs frequency
+# including DC component at k=0 which shows the average temperature level
+plt.figure()
+plt.bar(freq_data, mag_data, width=0.01, color='steelblue')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude')
+plt.title('Magnitude vs Frequency (DFT Result)')
+plt.grid(True)
+plt.tight_layout()
+plt.savefig('python/plot2_magnitude_vs_frequency.png')
+
 plt.show()
