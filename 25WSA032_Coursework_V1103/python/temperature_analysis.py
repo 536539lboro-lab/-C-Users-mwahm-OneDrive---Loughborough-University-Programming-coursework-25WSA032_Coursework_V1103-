@@ -64,4 +64,14 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig('python/plot3_smoothed_temperature.png')
 
+# plot 4 - histogram of temperature readings
+plt.figure()
+plt.hist(temp_data, bins=10, color='steelblue', edgecolor='black')
+plt.xlabel('Temperature (C)')
+plt.ylabel('Count')
+plt.title('Histogram of Temperature Readings')
+plt.grid(True)
+plt.tight_layout()
+plt.savefig('python/plot4_histogram.png')
+
 plt.show()
