@@ -44,4 +44,24 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig('python/plot2_magnitude_vs_frequency.png')
 
+# plot 3 - smoothed temperature vs time using moving average
+# window size of 5 means each point is averaged with 2 either side
+window = 5
+smoothed = []
+for i in range(len(temp_data)):
+    start = max(0, i - window // 2)
+    end   = min(len(temp_data), i + window // 2 + 1)
+    smoothed.append(sum(temp_data[start:end]) / (end - start))
+
+plt.figure()
+plt.plot(time_data, temp_data, color='steelblue', label='Original', alpha=0.5)
+plt.plot(time_data, smoothed, color='red', label='Smoothed (MA)')
+plt.xlabel('Time (s)')
+plt.ylabel('Temperature (C)')
+plt.title('Original vs Smoothed Temperature')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig('python/plot3_smoothed_temperature.png')
+
 plt.show()
