@@ -74,4 +74,23 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig('python/plot4_histogram.png')
 
+# plot 5 - temperature change rate vs time
+# calculates how much temperature changed between each sample
+change_rate = []
+change_time = []
+for i in range(1, len(temp_data)):
+    rate = temp_data[i] - temp_data[i - 1]
+    change_rate.append(rate)
+    change_time.append(time_data[i])
+
+plt.figure()
+plt.plot(change_time, change_rate, color='steelblue', marker='o', markersize=3)
+plt.xlabel('Time (s)')
+plt.ylabel('Temperature Change Rate (C)')
+plt.title('Temperature Change Rate vs Time')
+plt.axhline(y=0, color='red', linestyle='--', alpha=0.5)
+plt.grid(True)
+plt.tight_layout()
+plt.savefig('python/plot5_change_rate.png')
+
 plt.show()
