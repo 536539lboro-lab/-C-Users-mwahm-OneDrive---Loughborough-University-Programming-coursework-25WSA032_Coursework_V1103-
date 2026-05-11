@@ -1,3 +1,25 @@
+"""
+Reads temperature and frequency data recorded from the Arduino
+and produces 5 plots for analysis.
+
+The temperature dropped from around 38C to 26C over 145 seconds
+as the sensor cooled down after being near a heat source. The signal
+was smooth with no sudden jumps or noise.
+
+The DFT showed a large spike at 0Hz which is the DC component
+representing the average temperature. There were small magnitudes
+at very low frequencies matching the slow cooling trend. No high
+frequency components were present.
+
+The system switched to IDLE mode after the first cycle because the
+temperature was changing slowly rather than oscillating rapidly.
+This is correct behaviour for this type of signal, though it means
+the system might stay in IDLE even during large but gradual changes.
+
+The 30 data points at 0.2Hz were enough to capture the cooling curve
+clearly. More data points would not have changed the overall shape.
+"""
+
 # Reads CSV data recorded from Arduino and produces plots
 
 import csv
